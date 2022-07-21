@@ -69,7 +69,7 @@ def main():
 
         #Resgatar Default Time
         cursor.execute("Select config_value from log_app_bi.config where id_config = 2")
-        scheduled_time = '20:11:00' #cursor.fetchone()[0]
+        scheduled_time = cursor.fetchone()[0]
         scheduled_time = datetime.strptime(str(date.today()) + ' ' + scheduled_time, '%Y-%m-%d %H:%M:%S')
         print('Scheduled Time: %s' %(scheduled_time))
 
