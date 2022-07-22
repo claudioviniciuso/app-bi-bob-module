@@ -4,7 +4,7 @@ from app import stats
 from datetime import date, datetime, timedelta
 import time
 import logging
-import pytz
+#import pytz
 
 if __name__ == 'application':
     logging.basicConfig(
@@ -14,8 +14,8 @@ if __name__ == 'application':
         filemode='a'
         )
 
-UTC = pytz.utc
-IST = pytz.timezone('Brazil/East')
+#UTC = pytz.utc
+#IST = pytz.timezone('Brazil/East')
 
 app_log = logging.getLogger(__name__)
 
@@ -48,13 +48,13 @@ def execute(cnn, cursor, updated_at_min,stats_db):
     elif stats_db['status_connection'] == False:
         print('Failed to connect to server')
     else:
-        print('Iniciado em: %s' %(datetime.now(IST)))
+        print('Iniciado em: %s' %(datetime.now()))
         app_request = request_api.request_api(cnn, cursor, token=access_token, table='all')
         app_request.request_collects(updated_at_min)
         app_request.request_products(updated_at_min)
         app_request.request_customers(updated_at_min)
         app_request.request_orders(updated_at_min)
-        print('Finalizado em: %s' %(datetime.now(IST)))   
+        print('Finalizado em: %s' %(datetime.now()))   
 
     pass
 
