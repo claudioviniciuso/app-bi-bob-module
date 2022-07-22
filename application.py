@@ -91,9 +91,9 @@ def main():
 
     print('Time Sleep: %s' %(default_timesleep))
 
-    if default_timesleep > 60:
+    if default_timesleep > 40:
         cnn.close()
-        default_timesleep = 60
+        default_timesleep = 40
         print('Dormir por %s segundos' %(default_timesleep))
         time.sleep(default_timesleep)
     else:
@@ -105,3 +105,4 @@ def main():
             cnn.close()
 
    
+main()
