@@ -5,6 +5,8 @@ from datetime import date, datetime, timedelta
 import time
 import logging
 import pytz
+from apscheduler.schedulers.blocking import BlockingScheduler
+
 
 if __name__ == 'application':
     logging.basicConfig(
@@ -14,12 +16,8 @@ if __name__ == 'application':
         filemode='a'
         )
 
-UTC = pytz.utc
-IST = pytz.timezone('Brazil/East')
-
 app_log = logging.getLogger(__name__)
-
-  
+ 
 def execute(cnn, cursor, updated_at_min,stats_db):
     
     #Requisição Token
@@ -48,18 +46,18 @@ def execute(cnn, cursor, updated_at_min,stats_db):
     elif stats_db['status_connection'] == False:
         print('Failed to connect to server')
     else:
-        print('Iniciado em: %s' %(datetime.now(IST)))
+        print('Iniciado em: %s' %(datetime.now()))
         app_request = request_api.request_api(cnn, cursor, token=access_token, table='all')
         app_request.request_collects(updated_at_min)
         app_request.request_products(updated_at_min)
         app_request.request_customers(updated_at_min)
         app_request.request_orders(updated_at_min)
-        print('Finalizado em: %s' %(datetime.now(IST)))   
+        print('Finalizado em: %s' %(datetime.now()))   
 
     pass
 
-def main():
-    print('Inicio loop')
+def check_time():
+    
     # Conexão com Banco 
     connect_to = connect_db.config_db()
     stats_db = connect_to.exec() 
@@ -72,6 +70,26 @@ def main():
     scheduled_time = datetime.strptime(str(date.today()) + ' ' + scheduled_time, '%Y-%m-%d %H:%M:%S')
     print('Scheduled Time: %s' %(scheduled_time))
 
+    actual_datetime = datetime.now()
+
+    if actual_datetime > scheduled_time:
+        scheduled_time = scheduled_time + timedelta(days=1)
+
+    default_timesleep = (scheduled_time - actual_datetime).total_seconds() - 60
+
+    print('Time Sleep: %s' %(default_timesleep))
+
+    cnn.close()
+
+    return default_timesleep
+
+def run_app():
+    # Conexão com Banco 
+    connect_to = connect_db.config_db()
+    stats_db = connect_to.exec() 
+    cnn = connect_to.cnn
+    cursor = cnn.cursor()
+
     #Resgatar Update_at_min_Config
     cursor.execute("Select config_value from log_app_bi.config where id_config = 1")
     updated_at_min = cursor.fetchone()[0]
@@ -82,55 +100,15 @@ def main():
     status_app = cursor.fetchone()[0]
     print('Status APP: %s' %(status_app))
 
-    actual_datetime = datetime.now()
 
-    if actual_datetime > scheduled_time:
-        scheduled_time = scheduled_time + timedelta(days=1)
-
-    default_timesleep = (scheduled_time - actual_datetime).total_seconds() - 60
-
-    print('Time Sleep: %s' %(default_timesleep))
-
-    if default_timesleep > 40:
-        cnn.close()
-        default_timesleep = 40
-        print('Dormir por %s segundos' %(default_timesleep))
-    else:
-        print('Dormir por %s segundos' %(default_timesleep))
-        
-        if status_app == '1':
-            print('Executar')
-            execute(cnn,cursor,updated_at_min,stats_db)
-            cnn.close()
-
-    return time.sleep(default_timesleep)
+    if status_app == '1':
+        execute(cnn,cursor,updated_at_min,stats_db)
+    
+    cnn.close()
 
 
+scheduler = BlockingScheduler()
+print('Agendado')
+job_run = scheduler.add_job(run_app, 'interval', minutes=10)
+scheduler.start()
 
-
-from apscheduler.schedulers.blocking import BlockingScheduler
-
-
-def tick():
-    print('Tick! The time is: %s' % datetime.now())
-
-def tick_2():
-    print('Tick! The time is: %s' % datetime.now())
-
-
-if __name__ == '__main__':
-    scheduler = BlockingScheduler()
-    scheduler.add_job(tick, 'interval', seconds=3)
-    #print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
-
-    scheduler.add_job(tick_2, 'interval', seconds=10)
-
-
-    try:
-        scheduler.start()
-    except (KeyboardInterrupt, SystemExit):
-        pass
-
-
-
-main()
