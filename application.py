@@ -91,9 +91,17 @@ def main():
 
     print('Time Sleep: %s' %(default_timesleep))
 
-    if default_timesleep < 1500:
-        execute(cnn,cursor,updated_at_min,stats_db)
-    
-    cnn.close()
+    if default_timesleep > 60:
+        cnn.close()
+        default_timesleep = 60
+        print('Dormir por %s segundos' %(default_timesleep))
+        time.sleep(default_timesleep)
+    else:
+        print('Dormir por %s segundos' %(default_timesleep))
+        time.sleep(default_timesleep)
+        if status_app == '1':
+            print('Executar')
+            execute(cnn,cursor,updated_at_min,stats_db)
+            cnn.close()
 
    
