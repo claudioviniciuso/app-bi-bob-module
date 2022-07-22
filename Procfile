@@ -1,1 +1,1 @@
-web: python __init__.py --preload
+web: python __init__.py
