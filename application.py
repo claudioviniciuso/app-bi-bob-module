@@ -59,50 +59,51 @@ def execute(cnn, cursor, updated_at_min,stats_db):
     pass
 
 def main():
-    print('Inicio loop')
-    # Conexão com Banco 
-    connect_to = connect_db.config_db()
-    stats_db = connect_to.exec() 
-    cnn = connect_to.cnn
-    cursor = cnn.cursor()
+    while(True):
+        print('Inicio loop')
+        # Conexão com Banco 
+        connect_to = connect_db.config_db()
+        stats_db = connect_to.exec() 
+        cnn = connect_to.cnn
+        cursor = cnn.cursor()
 
-    #Resgatar Default Time
-    cursor.execute("Select config_value from log_app_bi.config where id_config = 2")
-    scheduled_time = cursor.fetchone()[0]
-    scheduled_time = datetime.strptime(str(date.today()) + ' ' + scheduled_time, '%Y-%m-%d %H:%M:%S')
-    print('Scheduled Time: %s' %(scheduled_time))
+        #Resgatar Default Time
+        cursor.execute("Select config_value from log_app_bi.config where id_config = 2")
+        scheduled_time = cursor.fetchone()[0]
+        scheduled_time = datetime.strptime(str(date.today()) + ' ' + scheduled_time, '%Y-%m-%d %H:%M:%S')
+        print('Scheduled Time: %s' %(scheduled_time))
 
-    #Resgatar Update_at_min_Config
-    cursor.execute("Select config_value from log_app_bi.config where id_config = 1")
-    updated_at_min = cursor.fetchone()[0]
-    print('Updated_at_min: %s' %(updated_at_min))
+        #Resgatar Update_at_min_Config
+        cursor.execute("Select config_value from log_app_bi.config where id_config = 1")
+        updated_at_min = cursor.fetchone()[0]
+        print('Updated_at_min: %s' %(updated_at_min))
 
-    #Resgatar Update_at_min_Config
-    cursor.execute("Select config_value from log_app_bi.config where id_config = 3")
-    status_app = cursor.fetchone()[0]
-    print('Status APP: %s' %(status_app))
+        #Resgatar Update_at_min_Config
+        cursor.execute("Select config_value from log_app_bi.config where id_config = 3")
+        status_app = cursor.fetchone()[0]
+        print('Status APP: %s' %(status_app))
 
-    actual_datetime = datetime.now()
+        actual_datetime = datetime.now()
 
-    if actual_datetime > scheduled_time:
-        scheduled_time = scheduled_time + timedelta(days=1)
+        if actual_datetime > scheduled_time:
+            scheduled_time = scheduled_time + timedelta(days=1)
 
-    default_timesleep = (scheduled_time - actual_datetime).total_seconds() - 60
+        default_timesleep = (scheduled_time - actual_datetime).total_seconds() - 60
 
-    print('Time Sleep: %s' %(default_timesleep))
+        print('Time Sleep: %s' %(default_timesleep))
 
-    if default_timesleep > 40:
-        cnn.close()
-        default_timesleep = 40
-        print('Dormir por %s segundos' %(default_timesleep))
-        time.sleep(default_timesleep)
-    else:
-        print('Dormir por %s segundos' %(default_timesleep))
-        time.sleep(default_timesleep)
-        if status_app == '1':
-            print('Executar')
-            execute(cnn,cursor,updated_at_min,stats_db)
+        if default_timesleep > 40:
             cnn.close()
+            default_timesleep = 40
+            print('Dormir por %s segundos' %(default_timesleep))
+            time.sleep(default_timesleep)
+        else:
+            print('Dormir por %s segundos' %(default_timesleep))
+            time.sleep(default_timesleep)
+            if status_app == '1':
+                print('Executar')
+                execute(cnn,cursor,updated_at_min,stats_db)
+                cnn.close()
 
    
 main()
