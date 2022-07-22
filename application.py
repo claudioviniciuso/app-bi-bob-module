@@ -111,7 +111,7 @@ def check():
 
 scheduler = BlockingScheduler()
 print('Agendado')
-job_run = scheduler.add_job(run_app, 'interval', minutes=60)
+job_run = scheduler.add_job(run_app, 'interval', minutes=30)
 job_check = scheduler.add_job(check, 'interval', seconds=10)
     
 try:
