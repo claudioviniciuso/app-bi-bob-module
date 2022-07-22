@@ -1,4 +1,10 @@
+APScheduler==3.9.1
 click==7.1.2
+pytz==2022.1
+pytz-deprecation-shim==0.1.0.post0
+six==1.16.0
 spark-parser==1.8.9
+tzdata==2022.1
+tzlocal==4.2
 uncompyle6==3.7.4
 xdis==5.0.5
