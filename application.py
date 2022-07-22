@@ -106,9 +106,15 @@ def run_app():
     
     cnn.close()
 
+def check():
+    print('Funcionando..')
 
 scheduler = BlockingScheduler()
 print('Agendado')
-job_run = scheduler.add_job(run_app, 'interval', minutes=10)
-scheduler.start()
-
+job_run = scheduler.add_job(run_app, 'interval', minutes=60)
+job_check = scheduler.add_job(check, 'interval', seconds=10)
+    
+try:
+    scheduler.start()
+except (KeyboardInterrupt, SystemExit):
+    pass
