@@ -102,8 +102,8 @@ def main():
             print('Executar')
             execute(cnn,cursor,updated_at_min,stats_db)
             cnn.close()
-            
+
     return time.sleep(default_timesleep)
 
-while(True):
-    main()
+
+main()
